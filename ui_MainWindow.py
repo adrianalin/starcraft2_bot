@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Sat Feb  9 19:32:04 2019
+# Created: Sat Feb  9 20:33:58 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,9 +26,9 @@ class Ui_MainWindow(object):
         self.horizontalSlider_2.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_2.setObjectName("horizontalSlider_2")
         self.gridLayout.addWidget(self.horizontalSlider_2, 1, 0, 1, 1)
-        self.videoLabel = QtWidgets.QLabel(self.centralwidget)
-        self.videoLabel.setObjectName("videoLabel")
-        self.gridLayout.addWidget(self.videoLabel, 2, 0, 1, 1)
+        self.pictureLabel = QtWidgets.QLabel(self.centralwidget)
+        self.pictureLabel.setObjectName("pictureLabel")
+        self.gridLayout.addWidget(self.pictureLabel, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 783, 26))
@@ -43,5 +43,5 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "MainWindow", None, -1))
-        self.videoLabel.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
+        self.pictureLabel.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
 

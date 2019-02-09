@@ -7,19 +7,12 @@ import numpy as np
 import cv2
 import time
 
-
-from PySide2.QtCore import QObject, Signal
-from PySide2.QtGui import QImage, QPixmap
-
 #  165 iterations / minute
 
 
-class BotTest(sc2.BotAI, QObject):
-    pixmap_signal = Signal(QPixmap)
+class BotTest(sc2.BotAI):
 
     def __init__(self):
-        QObject.__init__(self)
-
         self.ITERATIONS_PER_MINUTE = 165
         self.MAX_WORKERS = 50
         self.do_something_after = 0
@@ -157,14 +150,12 @@ class BotTest(sc2.BotAI, QObject):
         # flip horizontally to make our final fix in visual representation:
         self.flipped = cv2.flip(game_data, 0)
         # resized = cv2.resize(self.flipped, dsize=None, fx=2, fy=2)
-        qimage = QImage(self.flipped, self.flipped.shape[1], self.flipped.shape[0], QImage.Format_RGB888)
-        pixmap = QPixmap(qimage)
-        self.pixmap_signal.emit(pixmap)
 
         # cv2.imshow('Intel', self.flipped)
         cv2.waitKey(1)
 
     def stop_game(self):
+        print('stop game')
         pass
 
     def find_target(self, state):
