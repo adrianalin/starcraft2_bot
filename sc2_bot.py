@@ -13,10 +13,25 @@ import time
 class BotTest(sc2.BotAI):
 
     def __init__(self):
+        super(BotTest, self).__init__()
+
         self.ITERATIONS_PER_MINUTE = 165
         self.MAX_WORKERS = 50
         self.do_something_after = 0
         self.train_data = []
+        self.UNITS_DRAW = {
+            NEXUS: [15, (0, 255, 0)],
+            PYLON: [3, (20, 235, 0)],
+            PROBE: [1, (55, 200, 0)],
+            ASSIMILATOR: [2, (55, 200, 0)],
+            GATEWAY: [3, (200, 100, 0)],
+            CYBERNETICSCORE: [3, (150, 150, 0)],
+            STARGATE: [5, (255, 0, 0)],
+            ROBOTICSFACILITY: [5, (215, 155, 0)],
+
+            VOIDRAY: [3, (255, 100, 0)],
+            OBSERVER: [1, (255, 255, 255)],
+        }
 
     def on_end(self, game_result):
         print('--- on_end called ---')
@@ -63,7 +78,6 @@ class BotTest(sc2.BotAI):
             if scout.is_idle:
                 enemy_location = self.enemy_start_locations[0]
                 move_to = self.random_location_variance(enemy_location)
-                print(move_to)
                 await self.do(scout.move(move_to))
 
         else:
@@ -74,24 +88,10 @@ class BotTest(sc2.BotAI):
     async def intel(self):
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
 
-        draw_dict = {
-            NEXUS: [15, (0, 255, 0)],
-            PYLON: [3, (20, 235, 0)],
-            PROBE: [1, (55, 200, 0)],
-            ASSIMILATOR: [2, (55, 200, 0)],
-            GATEWAY: [3, (200, 100, 0)],
-            CYBERNETICSCORE: [3, (150, 150, 0)],
-            STARGATE: [5, (255, 0, 0)],
-            ROBOTICSFACILITY: [5, (215, 155, 0)],
-
-            VOIDRAY: [3, (255, 100, 0)],
-            # OBSERVER: [3, (255, 255, 255)],
-        }
-
-        for unit_type in draw_dict:
+        for unit_type in self.UNITS_DRAW:
             for unit in self.units(unit_type).ready:
                 pos = unit.position
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), draw_dict[unit_type][0], draw_dict[unit_type][1], -1)
+                cv2.circle(game_data, (int(pos[0]), int(pos[1])), self.UNITS_DRAW[unit_type][0], self.UNITS_DRAW[unit_type][1], -1)
 
         main_base_names = ["nexus", "supplydepot", "hatchery"]
         for enemy_building in self.known_enemy_structures:
@@ -116,11 +116,6 @@ class BotTest(sc2.BotAI):
                 else:
                     cv2.circle(game_data, (int(pos[0]), int(pos[1])), 3, (50, 0, 215), -1)
 
-        for obs in self.units(OBSERVER).ready:
-            pos = obs.position
-            cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (255, 255, 255), -1)
-
-        line_max = 50
         mineral_ratio = self.minerals / 1500
         if mineral_ratio > 1.0:
             mineral_ratio = 1.0
@@ -140,7 +135,7 @@ class BotTest(sc2.BotAI):
         if military_weight > 1.0:
             military_weight = 1.0
 
-
+        line_max = 50
         cv2.line(game_data, (0, 19), (int(line_max*military_weight), 19), (250, 250, 200), 3)  # worker/supply ratio
         cv2.line(game_data, (0, 15), (int(line_max*plausible_supply), 15), (220, 200, 200), 3)  # plausible supply (supply/200.0)
         cv2.line(game_data, (0, 11), (int(line_max*population_ratio), 11), (150, 150, 150), 3)  # population ratio (supply_left/supply)
@@ -153,10 +148,6 @@ class BotTest(sc2.BotAI):
 
         # cv2.imshow('Intel', self.flipped)
         cv2.waitKey(1)
-
-    def stop_game(self):
-        print('stop game')
-        pass
 
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
@@ -253,3 +244,10 @@ class BotTest(sc2.BotAI):
                 for nexus in self.units(NEXUS).ready.noqueue:
                     if self.can_afford(PROBE):
                         await self.do(nexus.train(PROBE))
+
+    def stop_game(self):
+        print('stop game')
+        pass
+
+    def units_effective(self):
+        return {unit: len(self.units(unit)) for unit in self.UNITS_DRAW}

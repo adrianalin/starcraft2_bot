@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>783</width>
-    <height>680</height>
+    <width>593</width>
+    <height>788</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,26 +15,15 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QSlider" name="horizontalSlider">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0">
-     <widget class="QSlider" name="horizontalSlider_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
      <widget class="QLabel" name="pictureLabel">
       <property name="text">
        <string>TextLabel</string>
       </property>
      </widget>
+    </item>
+    <item row="0" column="0">
+     <layout class="QFormLayout" name="unitsEffectiveLayout"/>
     </item>
    </layout>
   </widget>
@@ -43,7 +32,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>783</width>
+     <width>593</width>
      <height>26</height>
     </rect>
    </property>

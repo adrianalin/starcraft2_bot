@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Sat Feb  9 20:33:58 2019
+# Created: Sun Feb 10 10:54:19 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,25 +13,20 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(783, 680)
+        MainWindow.resize(593, 788)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.horizontalSlider = QtWidgets.QSlider(self.centralwidget)
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider.setObjectName("horizontalSlider")
-        self.gridLayout.addWidget(self.horizontalSlider, 0, 0, 1, 1)
-        self.horizontalSlider_2 = QtWidgets.QSlider(self.centralwidget)
-        self.horizontalSlider_2.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider_2.setObjectName("horizontalSlider_2")
-        self.gridLayout.addWidget(self.horizontalSlider_2, 1, 0, 1, 1)
         self.pictureLabel = QtWidgets.QLabel(self.centralwidget)
         self.pictureLabel.setObjectName("pictureLabel")
-        self.gridLayout.addWidget(self.pictureLabel, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.pictureLabel, 1, 0, 1, 1)
+        self.unitsEffectiveLayout = QtWidgets.QFormLayout()
+        self.unitsEffectiveLayout.setObjectName("unitsEffectiveLayout")
+        self.gridLayout.addLayout(self.unitsEffectiveLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 783, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 593, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
