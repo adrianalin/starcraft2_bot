@@ -183,12 +183,16 @@ class BotTest(sc2.BotAI):
                     #attack_enemy_start
                     target = self.enemy_start_locations[0]
 
+                # enforce choice 1 -- attack enemy units
+                # if len(self.known_enemy_units) > 0:
+                #     choice = 1
+
                 if target:
                     for vr in self.units(VOIDRAY).idle:
                         await self.do(vr.attack(target))
                 y = np.zeros(4)
                 y[choice] = 1
-                self.train_data.append([y,self.flipped])
+                self.train_data.append([y, self.flipped])
 
     async def build_offensive_force(self):
         for sg in self.units(STARGATE).ready.noqueue:
@@ -252,7 +256,8 @@ class BotTest(sc2.BotAI):
         pass
 
     def units_effective(self):
-        return {unit: len(self.units(unit)) for unit in self.UNITS_DRAW}
+        return [(unit, len(self.units(unit).ready), len(self.units(unit).not_ready))
+                for unit in self.UNITS_DRAW]
 
     def set_max_nexuses(self, count):
         self.max_nexuses = count

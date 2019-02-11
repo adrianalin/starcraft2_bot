@@ -36,14 +36,14 @@ class MainWindow(QMainWindow):
 
     def update_units(self):
         if self.ui.unitsEffectiveLayout.rowCount() == 0:
-            for unit_type, count in self.bot.units_effective().items():
-                self.ui.unitsEffectiveLayout.addRow(str(unit_type).split('.')[1], QLabel(str(count), self))
+            for (unit_type, count_ready, _)in self.bot.units_effective():
+                self.ui.unitsEffectiveLayout.addRow(str(unit_type).split('.')[1], QLabel(str(count_ready), self))
 
-        for index, unit_type in enumerate(self.bot.units_effective()):
+        for index, (unit_type, count_ready, count_not_ready) in enumerate(self.bot.units_effective()):
             self.ui.unitsEffectiveLayout.itemAt(index, QFormLayout.LabelRole).widget().\
                 setText(str(unit_type).split('.')[1])
             self.ui.unitsEffectiveLayout.itemAt(index, QFormLayout.FieldRole).widget().\
-                setText(str(self.bot.units_effective()[unit_type]))
+                setText(str(count_ready) + ' + ' + str(count_not_ready))
 
     def set_max_nexuses(self, count):
         self.bot.set_max_nexuses(count)
