@@ -22,6 +22,11 @@ class MainWindow(QMainWindow):
         timer.timeout.connect(self.update_units)
         timer.start(50)
 
+        self.ui.maxNexusesSpinBox.valueChanged.connect(self.set_max_nexuses)
+        self.ui.maxNexusesSpinBox.setValue(3)
+        self.ui.maxNexusesSpinBox.setMinimum(1)
+        self.ui.maxNexusesSpinBox.setMaximum(6)
+
     def update_picture(self):
         flipped = self.bot.flipped
         qimage = QImage(flipped, flipped.shape[1], flipped.shape[0], QImage.Format_RGB888)
@@ -39,6 +44,9 @@ class MainWindow(QMainWindow):
                 setText(str(unit_type).split('.')[1])
             self.ui.unitsEffectiveLayout.itemAt(index, QFormLayout.FieldRole).widget().\
                 setText(str(self.bot.units_effective()[unit_type]))
+
+    def set_max_nexuses(self, count):
+        self.bot.set_max_nexuses(count)
 
     def closeEvent(self, event: QCloseEvent):
         ret = QMessageBox.question(self, self.tr("Sc2 bot"),

@@ -33,6 +33,8 @@ class BotTest(sc2.BotAI):
             OBSERVER: [1, (255, 255, 255)],
         }
 
+        self.max_nexuses = 3
+
     def on_end(self, game_result):
         print('--- on_end called ---')
         print(game_result)
@@ -215,7 +217,7 @@ class BotTest(sc2.BotAI):
                         await self.build(STARGATE, near=pylon)
 
     async def expand(self):
-        if self.units(NEXUS).amount < 3 and self.can_afford(NEXUS):
+        if self.units(NEXUS).amount < self.max_nexuses and self.can_afford(NEXUS):
             await self.expand_now()
 
     async def build_assimilators(self):
@@ -251,3 +253,6 @@ class BotTest(sc2.BotAI):
 
     def units_effective(self):
         return {unit: len(self.units(unit)) for unit in self.UNITS_DRAW}
+
+    def set_max_nexuses(self, count):
+        self.max_nexuses = count

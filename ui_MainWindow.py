@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Sun Feb 10 10:54:19 2019
+# Created: Mon Feb 11 15:06:15 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,13 +20,25 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         self.pictureLabel = QtWidgets.QLabel(self.centralwidget)
         self.pictureLabel.setObjectName("pictureLabel")
-        self.gridLayout.addWidget(self.pictureLabel, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.pictureLabel, 2, 0, 1, 1)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.settingsLayout = QtWidgets.QFormLayout()
+        self.settingsLayout.setObjectName("settingsLayout")
+        self.maxNexusesLabel = QtWidgets.QLabel(self.centralwidget)
+        self.maxNexusesLabel.setObjectName("maxNexusesLabel")
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.maxNexusesLabel)
+        self.maxNexusesSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        self.maxNexusesSpinBox.setObjectName("maxNexusesSpinBox")
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.maxNexusesSpinBox)
+        self.horizontalLayout.addLayout(self.settingsLayout)
         self.unitsEffectiveLayout = QtWidgets.QFormLayout()
         self.unitsEffectiveLayout.setObjectName("unitsEffectiveLayout")
-        self.gridLayout.addLayout(self.unitsEffectiveLayout, 0, 0, 1, 1)
+        self.horizontalLayout.addLayout(self.unitsEffectiveLayout)
+        self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 593, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 593, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -39,4 +51,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "MainWindow", None, -1))
         self.pictureLabel.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
+        self.maxNexusesLabel.setText(QtWidgets.QApplication.translate("MainWindow", "Max Nexuses", None, -1))
 

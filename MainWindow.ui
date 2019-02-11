@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QLabel" name="pictureLabel">
       <property name="text">
        <string>TextLabel</string>
@@ -23,7 +23,25 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <layout class="QFormLayout" name="unitsEffectiveLayout"/>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <layout class="QFormLayout" name="settingsLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="maxNexusesLabel">
+          <property name="text">
+           <string>Max Nexuses</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="maxNexusesSpinBox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QFormLayout" name="unitsEffectiveLayout"/>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -33,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>593</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
