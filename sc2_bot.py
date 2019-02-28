@@ -6,6 +6,7 @@ import random
 import numpy as np
 import cv2
 import time
+import math
 
 #  165 iterations / minute
 
@@ -15,7 +16,7 @@ class BotTest(sc2.BotAI):
     def __init__(self):
         super(BotTest, self).__init__()
 
-        self.ITERATIONS_PER_MINUTE = 165
+        # self.ITERATIONS_PER_MINUTE = 165
         self.MAX_WORKERS = 50
         self.do_something_after = 0
         self.train_data = []
@@ -34,6 +35,7 @@ class BotTest(sc2.BotAI):
         }
 
         self.max_nexuses = 3
+        self.game_time = 0
 
     def on_end(self, game_result):
         print('--- on_end called ---')
@@ -43,7 +45,7 @@ class BotTest(sc2.BotAI):
             np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
     async def on_step(self, iteration: int):
-        self.iteration = iteration
+        self.game_time = (self.state.game_loop / 22.4) / 60
         await self.scout()
         await self.distribute_workers()
         await self.build_workers()
@@ -59,8 +61,8 @@ class BotTest(sc2.BotAI):
         x = enemy_start_location[0]
         y = enemy_start_location[1]
 
-        x += ((random.randrange(-20, 20)) / 100) * enemy_start_location[0]
-        y += ((random.randrange(-20, 20)) / 100) * enemy_start_location[1]
+        x += ((random.randrange(-20, 20)) / 100) * self.game_info.map_size[0]
+        y += ((random.randrange(-20, 20)) / 100) * self.game_info.map_size[1]
 
         if x < 0:
             x = 0
@@ -90,59 +92,43 @@ class BotTest(sc2.BotAI):
     async def intel(self):
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
 
-        for unit_type in self.UNITS_DRAW:
-            for unit in self.units(unit_type).ready:
-                pos = unit.position
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), self.UNITS_DRAW[unit_type][0], self.UNITS_DRAW[unit_type][1], -1)
+        for unit in self.units().ready:
+            pos = unit.position
+            cv2.circle(game_data, (int(pos[0]), int(pos[1])), int(unit.radius * 8), (255, 255, 255),
+                       math.ceil(int(unit.radius * 0.5)))
 
-        main_base_names = ["nexus", "supplydepot", "hatchery"]
-        for enemy_building in self.known_enemy_structures:
-            pos = enemy_building.position
-            if enemy_building.name.lower() not in main_base_names:
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 5, (200, 50, 212), -1)
-        for enemy_building in self.known_enemy_structures:
-            pos = enemy_building.position
-            if enemy_building.name.lower() in main_base_names:
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 15, (0, 0, 255), -1)
+        for unit in self.known_enemy_units:
+            pos = unit.position
+            cv2.circle(game_data, (int(pos[0]), int(pos[1])), int(unit.radius * 8), (125, 125, 125),
+                       math.ceil(int(unit.radius * 0.5)))
 
-        for enemy_unit in self.known_enemy_units:
+        try:
+            line_max = 50
+            mineral_ratio = self.minerals / 1500
+            if mineral_ratio > 1.0:
+                mineral_ratio = 1.0
 
-            if not enemy_unit.is_structure:
-                worker_names = ["probe",
-                                "scv",
-                                "drone"]
-                # if that unit is a PROBE, SCV, or DRONE... it's a worker
-                pos = enemy_unit.position
-                if enemy_unit.name.lower() in worker_names:
-                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (55, 0, 155), -1)
-                else:
-                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 3, (50, 0, 215), -1)
+            vespene_ratio = self.vespene / 1500
+            if vespene_ratio > 1.0:
+                vespene_ratio = 1.0
 
-        mineral_ratio = self.minerals / 1500
-        if mineral_ratio > 1.0:
-            mineral_ratio = 1.0
+            population_ratio = self.supply_left / self.supply_cap
+            if population_ratio > 1.0:
+                population_ratio = 1.0
 
+            plausible_supply = self.supply_cap / 200.0
 
-        vespene_ratio = self.vespene / 1500
-        if vespene_ratio > 1.0:
-            vespene_ratio = 1.0
+            worker_weight = len(self.units(PROBE)) / (self.supply_cap - self.supply_left)
+            if worker_weight > 1.0:
+                worker_weight = 1.0
 
-        population_ratio = self.supply_left / self.supply_cap
-        if population_ratio > 1.0:
-            population_ratio = 1.0
-
-        plausible_supply = self.supply_cap / 200.0
-
-        military_weight = len(self.units(VOIDRAY)) / (self.supply_cap-self.supply_left)
-        if military_weight > 1.0:
-            military_weight = 1.0
-
-        line_max = 50
-        cv2.line(game_data, (0, 19), (int(line_max*military_weight), 19), (250, 250, 200), 3)  # worker/supply ratio
-        cv2.line(game_data, (0, 15), (int(line_max*plausible_supply), 15), (220, 200, 200), 3)  # plausible supply (supply/200.0)
-        cv2.line(game_data, (0, 11), (int(line_max*population_ratio), 11), (150, 150, 150), 3)  # population ratio (supply_left/supply)
-        cv2.line(game_data, (0, 7), (int(line_max*vespene_ratio), 7), (210, 200, 0), 3)  # gas / 1500
-        cv2.line(game_data, (0, 3), (int(line_max*mineral_ratio), 3), (0, 255, 25), 3)  # minerals minerals/1500
+            cv2.line(game_data, (0, 19), (int(line_max*worker_weight), 19), (250, 250, 200), 3)  # worker/supply ratio
+            cv2.line(game_data, (0, 15), (int(line_max*plausible_supply), 15), (220, 200, 200), 3)  # plausible supply (supply/200.0)
+            cv2.line(game_data, (0, 11), (int(line_max*population_ratio), 11), (150, 150, 150), 3)  # population ratio (supply_left/supply)
+            cv2.line(game_data, (0, 7), (int(line_max*vespene_ratio), 7), (210, 200, 0), 3)  # gas / 1500
+            cv2.line(game_data, (0, 3), (int(line_max*mineral_ratio), 3), (0, 255, 25), 3)  # minerals minerals/1500
+        except Exception as e:
+            print(str(e))
 
         # flip horizontally to make our final fix in visual representation:
         self.flipped = cv2.flip(game_data, 0)
@@ -163,11 +149,11 @@ class BotTest(sc2.BotAI):
         if len(self.units(VOIDRAY).idle) > 0:
             choice = random.randrange(0, 4)
             target = False
-            if self.iteration > self.do_something_after:
+            if self.game_time > self.do_something_after:
                 if choice == 0:
                     # no attack
-                    wait = random.randrange(20, 165)
-                    self.do_something_after = self.iteration + wait
+                    wait = random.randrange(7, 100) / 100
+                    self.do_something_after = self.game_time + wait
 
                 elif choice == 1:
                     #attack_unit_closest_nexus
@@ -204,21 +190,21 @@ class BotTest(sc2.BotAI):
             pylon = self.units(PYLON).ready.random
             if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
                 if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
-                    await self.build(CYBERNETICSCORE, near=pylon)
+                    await self.build(CYBERNETICSCORE, near=pylon.position.towards(self.game_info.map_center, 5))
 
             elif len(self.units(GATEWAY)) < 1:
                 if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
-                    await self.build(GATEWAY, near=pylon)
+                    await self.build(GATEWAY, near=pylon.position.towards(self.game_info.map_center, 5))
 
             if self.units(CYBERNETICSCORE).ready.exists:
                 if len(self.units(ROBOTICSFACILITY)) < 1:
                     if self.can_afford(ROBOTICSFACILITY) and not self.already_pending(ROBOTICSFACILITY):
-                        await self.build(ROBOTICSFACILITY, near=pylon)
+                        await self.build(ROBOTICSFACILITY, near=pylon.position.towards(self.game_info.map_center, 5))
 
             if self.units(CYBERNETICSCORE).ready.exists:
-                if len(self.units(STARGATE)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
+                if len(self.units(STARGATE)) < self.game_time:
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
-                        await self.build(STARGATE, near=pylon)
+                        await self.build(STARGATE, near=pylon.position.towards(self.game_info.map_center, 5))
 
     async def expand(self):
         if self.units(NEXUS).amount < self.max_nexuses and self.can_afford(NEXUS):
@@ -241,7 +227,7 @@ class BotTest(sc2.BotAI):
             nexuses = self.units(NEXUS).ready
             if nexuses.exists:
                 if self.can_afford(PYLON):
-                    await self.build(PYLON, near=nexuses.first)
+                    await self.build(PYLON, near=self.units(NEXUS).first.position.towards(self.game_info.map_center, 5))
 
 
     async def build_workers(self):
