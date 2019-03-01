@@ -1,14 +1,12 @@
 import sc2
 from sc2 import position, Result, UnitTypeId
 from sc2.constants import NEXUS, PROBE, PYLON, ASSIMILATOR, GATEWAY, CYBERNETICSCORE, STALKER, STARGATE, VOIDRAY, \
-    OBSERVER, ROBOTICSFACILITY
+    OBSERVER, ROBOTICSFACILITY, FLEETBEACON, CARRIER
 import random
 import numpy as np
 import cv2
 import time
 import math
-
-#  165 iterations / minute
 
 
 class BotTest(sc2.BotAI):
@@ -162,6 +160,8 @@ class BotTest(sc2.BotAI):
                     target = self.enemy_start_locations[0]
 
                 if target:
+                    for car in self.units(CARRIER).idle:
+                        await self.do(car.attack(target))
                     for vr in self.units(VOIDRAY).idle:
                         await self.do(vr.attack(target))
                 y = np.zeros(4)
@@ -170,6 +170,10 @@ class BotTest(sc2.BotAI):
 
     async def build_offensive_force(self):
         for sg in self.units(STARGATE).ready.noqueue:
+            if self.units(FLEETBEACON).ready:
+                if self.can_afford(CARRIER) and self.supply_left > 0:
+                    await self.do(sg.train(CARRIER))
+
             if self.can_afford(VOIDRAY) and self.supply_left > 0:
                 await self.do(sg.train(VOIDRAY))
 
@@ -193,6 +197,11 @@ class BotTest(sc2.BotAI):
                 if len(self.units(STARGATE)) < self.max_stargetes:
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(STARGATE, near=pylon.position.towards(self.game_info.map_center, 5))
+
+            if self.units(STARGATE).ready.exists:
+                if len(self.units(FLEETBEACON)) < 1:
+                    if self.can_afford(FLEETBEACON) and not self.already_pending(FLEETBEACON):
+                        await self.build(FLEETBEACON, near=pylon.position.towards(self.game_info.map_center, 5))
 
     async def expand(self):
         if self.units(NEXUS).amount < self.max_nexuses and self.can_afford(NEXUS):
