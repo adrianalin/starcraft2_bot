@@ -14,8 +14,6 @@ class BotTest(sc2.BotAI):
     def __init__(self):
         super(BotTest, self).__init__()
 
-        # self.ITERATIONS_PER_MINUTE = 165
-        self.MAX_WORKERS = 50
         self.do_something_after = 0
         self.train_data = []
 
@@ -23,8 +21,11 @@ class BotTest(sc2.BotAI):
         self.max_stargetes = 3
         self.game_time = 0
         self.unit_types = list()
-        self.choices = {0: 'no attack', 1: 'attack unit closest nexus',
-                       2: 'attack enemy structures', 3: 'attack enemy start'}
+        self.choices = {0: self.do_nothing,
+                        1: self.attack_unit_closest_nexus,
+                        2: self.attack_enemy_structures,
+                        3: self.attack_enemy_start
+                        }
         self.current_choice = 0
 
     def on_end(self, game_result):
@@ -35,7 +36,7 @@ class BotTest(sc2.BotAI):
             np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
     async def on_step(self, iteration: int):
-        self.game_time = self.time / 60
+        self.game_time = (self.state.game_loop / 22.4) / 60
         await self.scout()
         await self.distribute_workers()
         await self.build_workers()
@@ -44,7 +45,7 @@ class BotTest(sc2.BotAI):
         await self.expand()
         await self.offensive_force_buildings()
         await self.build_offensive_force()
-        await self.attack()
+        await self.attack_something()
         await self.intel()
 
     def random_location_variance(self, enemy_start_location):
@@ -127,55 +128,59 @@ class BotTest(sc2.BotAI):
         # cv2.imshow('Intel', self.flipped)
         cv2.waitKey(1)
 
-    async def attack(self):
-        if len(self.units(VOIDRAY).idle) > 0:
-            self.current_choice = random.randrange(0, len(self.choices))
-            target = False
+    async def attack_something(self):
+        if len(self.units(VOIDRAY).idle) > 0 and len(self.units(CARRIER).idle) > 0:
+
             if self.game_time > self.do_something_after:
-                if self.current_choice == 0:
-                    # no attack
-                    wait = random.randrange(7, 100) / 100
-                    self.do_something_after = self.game_time + wait
+                self.current_choice = random.randrange(0, len(self.choices))
+                await self.choices[self.current_choice]()
 
-                elif self.current_choice == 1:
-                    #attack_unit_closest_nexus
-                    if len(self.known_enemy_units) > 0:
-                        target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
+            y = np.zeros(len(self.choices))
+            y[self.current_choice] = 1
+            self.train_data.append([y, self.flipped])
 
-                elif self.current_choice == 2:
-                    #attack enemy structures
-                    if len(self.known_enemy_structures) > 0:
-                        target = random.choice(self.known_enemy_structures)
+    async def do_nothing(self):
+        wait = random.randrange(7, 100)/100
+        self.do_something_after = self.game_time + wait
 
-                elif self.current_choice == 3:
-                    #attack_enemy_start
-                    target = self.enemy_start_locations[0]
+    async def attack_unit_closest_nexus(self):
+        if len(self.known_enemy_units) > 0 and self.units(NEXUS).exists:
+            targets = self.known_enemy_units.closer_than(60, random.choice(self.units(NEXUS)).position)
 
-                if target:
-                    for car in self.units(CARRIER).idle:
-                        await self.do(car.attack(target))
-                    for vr in self.units(VOIDRAY).idle:
-                        await self.do(vr.attack(target))
-                y = np.zeros(4)
-                y[self.current_choice] = 1
-                self.train_data.append([y, self.flipped])
+        if targets:
+            target = random.choice(targets)
+            for car in self.units(CARRIER).idle:
+                await self.do(car.attack(target))
+            for vr in self.units(VOIDRAY).idle:
+                await self.do(vr.attack(target))
 
-    async def on_unit_destroyed(self, unit_tag):
-        if len(self.known_enemy_units) > 0:
-            target = self.known_enemy_units.closest_to(random.choice(self.units(PROBE)))
-            self.current_choice = 1
+    async def attack_enemy_structures(self):
+        if len(self.known_enemy_structures) > 0:
+            target = random.choice(self.known_enemy_structures)
         if target:
             for car in self.units(CARRIER).idle:
                 await self.do(car.attack(target))
             for vr in self.units(VOIDRAY).idle:
                 await self.do(vr.attack(target))
 
+    async def attack_enemy_start(self):
+        target = self.enemy_start_locations[0]
+        if target:
+            for car in self.units(CARRIER).idle:
+                await self.do(car.attack(target))
+            for vr in self.units(VOIDRAY).idle:
+                await self.do(vr.attack(target))
+
+    async def on_unit_destroyed(self, unit_tag):
+        if len(self.known_enemy_units) > 0:
+            self.current_choice = 1
+            await self.choices[self.current_choice]()
+
     async def build_offensive_force(self):
         for sg in self.units(STARGATE).ready.noqueue:
             if self.units(FLEETBEACON).ready:
                 if self.can_afford(CARRIER) and self.supply_left > 0:
                     await self.do(sg.train(CARRIER))
-
             if self.can_afford(VOIDRAY) and self.supply_left > 0:
                 await self.do(sg.train(VOIDRAY))
 
@@ -231,10 +236,9 @@ class BotTest(sc2.BotAI):
 
     async def build_workers(self):
         if len(self.units(NEXUS)) * 16 > len(self.units(PROBE)):
-            if len(self.units(PROBE)) < self.MAX_WORKERS:
-                for nexus in self.units(NEXUS).ready.noqueue:
-                    if self.can_afford(PROBE):
-                        await self.do(nexus.train(PROBE))
+            for nexus in self.units(NEXUS).ready.noqueue:
+                if self.can_afford(PROBE):
+                    await self.do(nexus.train(PROBE))
 
     def stop_game(self):
         print('stop game')
@@ -255,4 +259,4 @@ class BotTest(sc2.BotAI):
         self.max_stargetes = count
 
     def attack_choice(self):
-        return self.choices[self.current_choice]
+        return self.choices[self.current_choice].__name__

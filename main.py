@@ -12,7 +12,7 @@ if __name__ == '__main__':
     print('----------------run game loop')
     run_game(maps.get('AbyssalReefLE'), [
         Bot(Race.Protoss, window.getbot),
-        Computer(Race.Terran, Difficulty.Hard)
+        Computer(Race.Zerg, Difficulty.VeryHard)
     ], realtime=False)
 
     sys.exit()
