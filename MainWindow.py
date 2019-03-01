@@ -23,9 +23,14 @@ class MainWindow(QMainWindow):
         timer.start(50)
 
         self.ui.maxNexusesSpinBox.valueChanged.connect(self.set_max_nexuses)
-        self.ui.maxNexusesSpinBox.setValue(3)
+        self.ui.maxNexusesSpinBox.setValue(self.bot.max_nexuses)
         self.ui.maxNexusesSpinBox.setMinimum(1)
         self.ui.maxNexusesSpinBox.setMaximum(6)
+
+        self.ui.maxStargatesSpinBox.valueChanged.connect(self.set_max_stargates)
+        self.ui.maxStargatesSpinBox.setValue(self.bot.max_stargetes)
+        self.ui.maxStargatesSpinBox.setMinimum(1)
+        self.ui.maxStargatesSpinBox.setMaximum(6)
 
     def update_picture(self):
         flipped = self.bot.flipped
@@ -56,6 +61,9 @@ class MainWindow(QMainWindow):
 
     def set_max_nexuses(self, count):
         self.bot.set_max_nexuses(count)
+
+    def set_max_stargates(self, count):
+        self.bot.set_max_stargates(count)
 
     def closeEvent(self, event: QCloseEvent):
         ret = QMessageBox.question(self, self.tr("Sc2 bot"),

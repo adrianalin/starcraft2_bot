@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Fri Mar  1 13:13:30 2019
+# Created: Fri Mar  1 13:23:51 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,6 +43,12 @@ class Ui_MainWindow(object):
         self.game_time_label = QtWidgets.QLabel(self.centralwidget)
         self.game_time_label.setObjectName("game_time_label")
         self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.game_time_label)
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setObjectName("label_2")
+        self.settingsLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_2)
+        self.maxStargatesSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        self.maxStargatesSpinBox.setObjectName("maxStargatesSpinBox")
+        self.settingsLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.maxStargatesSpinBox)
         self.horizontalLayout.addLayout(self.settingsLayout)
         self.unitsEffectiveLayout = QtWidgets.QFormLayout()
         self.unitsEffectiveLayout.setObjectName("unitsEffectiveLayout")
@@ -68,4 +74,5 @@ class Ui_MainWindow(object):
         self.action_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
         self.label_3.setText(QtWidgets.QApplication.translate("MainWindow", "Game time", None, -1))
         self.game_time_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
+        self.label_2.setText(QtWidgets.QApplication.translate("MainWindow", "Max Stargates", None, -1))
 

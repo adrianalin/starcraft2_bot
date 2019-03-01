@@ -22,6 +22,7 @@ class BotTest(sc2.BotAI):
         self.train_data = []
 
         self.max_nexuses = 3
+        self.max_stargetes = 3
         self.game_time = 0
         self.unit_types = list()
         self.choices = {0: 'no attack', 1: 'attack unit closest nexus',
@@ -189,7 +190,7 @@ class BotTest(sc2.BotAI):
                         await self.build(ROBOTICSFACILITY, near=pylon.position.towards(self.game_info.map_center, 5))
 
             if self.units(CYBERNETICSCORE).ready.exists:
-                if len(self.units(STARGATE)) < self.game_time:
+                if len(self.units(STARGATE)) < self.max_stargetes:
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(STARGATE, near=pylon.position.towards(self.game_info.map_center, 5))
 
@@ -238,6 +239,9 @@ class BotTest(sc2.BotAI):
 
     def set_max_nexuses(self, count):
         self.max_nexuses = count
+
+    def set_max_stargates(self, count):
+        self.max_stargetes = count
 
     def attack_choice(self):
         return self.choices[self.current_choice]
