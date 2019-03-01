@@ -127,14 +127,6 @@ class BotTest(sc2.BotAI):
         # cv2.imshow('Intel', self.flipped)
         cv2.waitKey(1)
 
-    def find_target(self, state):
-        if len(self.known_enemy_units) > 0:
-            return random.choice(self.known_enemy_units)
-        elif len(self.known_enemy_structures) > 0:
-            return random.choice(self.known_enemy_structures)
-        else:
-            return self.enemy_start_locations[0]
-
     async def attack(self):
         if len(self.units(VOIDRAY).idle) > 0:
             self.current_choice = random.randrange(0, len(self.choices))
@@ -167,6 +159,16 @@ class BotTest(sc2.BotAI):
                 y = np.zeros(4)
                 y[self.current_choice] = 1
                 self.train_data.append([y, self.flipped])
+
+    async def on_unit_destroyed(self, unit_tag):
+        if len(self.known_enemy_units) > 0:
+            target = self.known_enemy_units.closest_to(random.choice(self.units(PROBE)))
+            self.current_choice = 1
+        if target:
+            for car in self.units(CARRIER).idle:
+                await self.do(car.attack(target))
+            for vr in self.units(VOIDRAY).idle:
+                await self.do(vr.attack(target))
 
     async def build_offensive_force(self):
         for sg in self.units(STARGATE).ready.noqueue:
