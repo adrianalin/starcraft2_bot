@@ -24,6 +24,9 @@ class BotTest(sc2.BotAI):
         self.max_nexuses = 3
         self.game_time = 0
         self.unit_types = list()
+        self.choices = {0: 'no attack', 1: 'attack unit closest nexus',
+                       2: 'attack enemy structures', 3: 'attack enemy start'}
+        self.current_choice = 0
 
     def on_end(self, game_result):
         print('--- on_end called ---')
@@ -33,7 +36,7 @@ class BotTest(sc2.BotAI):
             np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
     async def on_step(self, iteration: int):
-        self.game_time = (self.state.game_loop / 22.4) / 60
+        self.game_time = self.time / 60
         await self.scout()
         await self.distribute_workers()
         await self.build_workers()
@@ -135,37 +138,33 @@ class BotTest(sc2.BotAI):
 
     async def attack(self):
         if len(self.units(VOIDRAY).idle) > 0:
-            choice = random.randrange(0, 4)
+            self.current_choice = random.randrange(0, len(self.choices))
             target = False
             if self.game_time > self.do_something_after:
-                if choice == 0:
+                if self.current_choice == 0:
                     # no attack
                     wait = random.randrange(7, 100) / 100
                     self.do_something_after = self.game_time + wait
 
-                elif choice == 1:
+                elif self.current_choice == 1:
                     #attack_unit_closest_nexus
                     if len(self.known_enemy_units) > 0:
                         target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
 
-                elif choice == 2:
+                elif self.current_choice == 2:
                     #attack enemy structures
                     if len(self.known_enemy_structures) > 0:
                         target = random.choice(self.known_enemy_structures)
 
-                elif choice == 3:
+                elif self.current_choice == 3:
                     #attack_enemy_start
                     target = self.enemy_start_locations[0]
-
-                # enforce choice 1 -- attack enemy units
-                # if len(self.known_enemy_units) > 0:
-                #     choice = 1
 
                 if target:
                     for vr in self.units(VOIDRAY).idle:
                         await self.do(vr.attack(target))
                 y = np.zeros(4)
-                y[choice] = 1
+                y[self.current_choice] = 1
                 self.train_data.append([y, self.flipped])
 
     async def build_offensive_force(self):
@@ -239,3 +238,6 @@ class BotTest(sc2.BotAI):
 
     def set_max_nexuses(self, count):
         self.max_nexuses = count
+
+    def attack_choice(self):
+        return self.choices[self.current_choice]

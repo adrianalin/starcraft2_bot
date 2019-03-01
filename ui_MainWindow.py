@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Mon Feb 11 15:06:15 2019
+# Created: Fri Mar  1 13:13:30 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(593, 788)
+        MainWindow.resize(537, 788)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -27,10 +27,22 @@ class Ui_MainWindow(object):
         self.settingsLayout.setObjectName("settingsLayout")
         self.maxNexusesLabel = QtWidgets.QLabel(self.centralwidget)
         self.maxNexusesLabel.setObjectName("maxNexusesLabel")
-        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.maxNexusesLabel)
+        self.settingsLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.maxNexusesLabel)
         self.maxNexusesSpinBox = QtWidgets.QSpinBox(self.centralwidget)
         self.maxNexusesSpinBox.setObjectName("maxNexusesSpinBox")
-        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.maxNexusesSpinBox)
+        self.settingsLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.maxNexusesSpinBox)
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setObjectName("label")
+        self.settingsLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.action_label = QtWidgets.QLabel(self.centralwidget)
+        self.action_label.setObjectName("action_label")
+        self.settingsLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.action_label)
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setObjectName("label_3")
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_3)
+        self.game_time_label = QtWidgets.QLabel(self.centralwidget)
+        self.game_time_label.setObjectName("game_time_label")
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.game_time_label)
         self.horizontalLayout.addLayout(self.settingsLayout)
         self.unitsEffectiveLayout = QtWidgets.QFormLayout()
         self.unitsEffectiveLayout.setObjectName("unitsEffectiveLayout")
@@ -38,7 +50,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 593, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 537, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -52,4 +64,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "MainWindow", None, -1))
         self.pictureLabel.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
         self.maxNexusesLabel.setText(QtWidgets.QApplication.translate("MainWindow", "Max Nexuses", None, -1))
+        self.label.setText(QtWidgets.QApplication.translate("MainWindow", "Action", None, -1))
+        self.action_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
+        self.label_3.setText(QtWidgets.QApplication.translate("MainWindow", "Game time", None, -1))
+        self.game_time_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
 

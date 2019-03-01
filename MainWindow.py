@@ -51,6 +51,9 @@ class MainWindow(QMainWindow):
                 self.ui.unitsEffectiveLayout.itemAt(index, QFormLayout.FieldRole).widget().\
                     setText(str(count_ready) + ' + ' + str(count_not_ready))
 
+        self.ui.action_label.setText(self.bot.attack_choice())
+        self.ui.game_time_label.setText(str(int(self.bot.game_time)))
+
     def set_max_nexuses(self, count):
         self.bot.set_max_nexuses(count)
 
