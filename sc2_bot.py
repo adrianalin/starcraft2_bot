@@ -1,5 +1,5 @@
 import sc2
-from sc2 import position, Result
+from sc2 import position, Result, UnitTypeId
 from sc2.constants import NEXUS, PROBE, PYLON, ASSIMILATOR, GATEWAY, CYBERNETICSCORE, STALKER, STARGATE, VOIDRAY, \
     OBSERVER, ROBOTICSFACILITY
 import random
@@ -20,22 +20,10 @@ class BotTest(sc2.BotAI):
         self.MAX_WORKERS = 50
         self.do_something_after = 0
         self.train_data = []
-        self.UNITS_DRAW = {
-            NEXUS: [15, (0, 255, 0)],
-            PYLON: [3, (20, 235, 0)],
-            PROBE: [1, (55, 200, 0)],
-            ASSIMILATOR: [2, (55, 200, 0)],
-            GATEWAY: [3, (200, 100, 0)],
-            CYBERNETICSCORE: [3, (150, 150, 0)],
-            STARGATE: [5, (255, 0, 0)],
-            ROBOTICSFACILITY: [5, (215, 155, 0)],
-
-            VOIDRAY: [3, (255, 100, 0)],
-            OBSERVER: [1, (255, 255, 255)],
-        }
 
         self.max_nexuses = 3
         self.game_time = 0
+        self.unit_types = list()
 
     def on_end(self, game_result):
         print('--- on_end called ---')
@@ -242,8 +230,12 @@ class BotTest(sc2.BotAI):
         pass
 
     def units_effective(self):
+        unit_types = {UnitTypeId[unit.name.upper()] for unit in self.units()}
+        for unit in (unit_types - set(self.unit_types)):
+            self.unit_types.append(unit)
+
         return [(unit, len(self.units(unit).ready), len(self.units(unit).not_ready))
-                for unit in self.UNITS_DRAW]
+                for unit in self.unit_types]
 
     def set_max_nexuses(self, count):
         self.max_nexuses = count
