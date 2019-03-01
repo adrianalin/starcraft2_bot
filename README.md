@@ -4,4 +4,4 @@ Python script to play starcraft 2, inspired by sentdex https://www.youtube.com/c
 # dependencies
 python3.7, sc2, opencv, numpy, PySide2 (for window)
 
-Pycharm -> Settings -> Project Interpreter -> '+' search and install above mentioned packages to venv.
+Pycharm -> File -> Settings -> Project Interpreter -> '+' search and install above mentioned packages to venv.
