@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
                     setText(str(count_ready) + ' + ' + str(count_not_ready))
 
         self.ui.action_label.setText(self.bot.attack_choice())
-        self.ui.game_time_label.setText(str(int(self.bot.game_time)) + " - " + str(int(self.bot.do_something_after)))
+        self.ui.game_time_label.setText(str(int(self.bot.game_time)))
 
     def set_max_nexuses(self, count):
         self.bot.set_max_nexuses(count)

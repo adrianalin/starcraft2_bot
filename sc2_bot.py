@@ -17,14 +17,14 @@ class BotTest(sc2.BotAI):
         self.do_something_after = 0
         self.train_data = []
 
-        self.max_nexuses = 3
-        self.max_stargetes = 3
+        self.max_nexuses = 4
+        self.max_stargetes = 6
         self.game_time = 0
         self.unit_types = list()
         self.choices = {0: self.do_nothing,
-                        1: self.attack_unit_closest_nexus,
-                        2: self.attack_enemy_structures,
-                        3: self.attack_enemy_start
+                        1: self.unit_closest_nexus,
+                        2: self.enemy_structures,
+                        3: self.enemy_start
                         }
         self.current_choice = 0
 
@@ -76,9 +76,10 @@ class BotTest(sc2.BotAI):
                 await self.do(scout.move(move_to))
 
         else:
-            for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
-                if self.can_afford(OBSERVER) and self.supply_left > 0:
-                    await self.do(rf.train(OBSERVER))
+            if self.units(ROBOTICSFACILITY).ready.exists:
+                for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
+                    if self.can_afford(OBSERVER) and self.supply_left > 0:
+                        await self.do(rf.train(OBSERVER))
 
     async def intel(self):
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
@@ -133,48 +134,45 @@ class BotTest(sc2.BotAI):
 
             if self.game_time > self.do_something_after:
                 self.current_choice = random.randrange(0, len(self.choices))
-                await self.choices[self.current_choice]()
+                print(self.current_choice)
+                target = self.choices[self.current_choice]()
+                await self.do_attack(target)
 
             y = np.zeros(len(self.choices))
             y[self.current_choice] = 1
             self.train_data.append([y, self.flipped])
 
-    async def do_nothing(self):
+    async def do_attack(self, target):
+        if len(self.units(CARRIER)) > 1 and len(self.units(VOIDRAY)) > 1:
+            for car in self.units(CARRIER):
+                await self.do(car.attack(target))
+            for vr in self.units(VOIDRAY):
+                await self.do(vr.attack(target))
+
+    def do_nothing(self):
         wait = random.randrange(7, 100)/100
         self.do_something_after = self.game_time + wait
+        return None
 
-    async def attack_unit_closest_nexus(self):
+    def unit_closest_nexus(self):
         if len(self.known_enemy_units) > 0 and self.units(NEXUS).exists:
-            targets = self.known_enemy_units.closer_than(60, random.choice(self.units(NEXUS)).position)
+            target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
+            return target
 
-        if targets:
-            target = random.choice(targets)
-            for car in self.units(CARRIER).idle:
-                await self.do(car.attack(target))
-            for vr in self.units(VOIDRAY).idle:
-                await self.do(vr.attack(target))
-
-    async def attack_enemy_structures(self):
+    def enemy_structures(self):
         if len(self.known_enemy_structures) > 0:
-            target = random.choice(self.known_enemy_structures)
-        if target:
-            for car in self.units(CARRIER).idle:
-                await self.do(car.attack(target))
-            for vr in self.units(VOIDRAY).idle:
-                await self.do(vr.attack(target))
+            if len(self.known_enemy_structures) > 0:
+                target = random.choice(self.known_enemy_structures)
+        return target
 
-    async def attack_enemy_start(self):
+    def enemy_start(self):
         target = self.enemy_start_locations[0]
-        if target:
-            for car in self.units(CARRIER).idle:
-                await self.do(car.attack(target))
-            for vr in self.units(VOIDRAY).idle:
-                await self.do(vr.attack(target))
+        return target
 
     async def on_unit_destroyed(self, unit_tag):
-        if len(self.known_enemy_units) > 0:
-            self.current_choice = 1
-            await self.choices[self.current_choice]()
+        target = self.unit_closest_nexus()
+        self.current_choice = 1
+        await self.do_attack(target)
 
     async def build_offensive_force(self):
         for sg in self.units(STARGATE).ready.noqueue:
@@ -211,7 +209,9 @@ class BotTest(sc2.BotAI):
                         await self.build(FLEETBEACON, near=pylon.position.towards(self.game_info.map_center, 5))
 
     async def expand(self):
-        if self.units(NEXUS).amount < self.max_nexuses and self.can_afford(NEXUS):
+        if self.units(NEXUS).amount < self.max_nexuses \
+                and self.can_afford(NEXUS) \
+                and not self.already_pending(NEXUS):
             await self.expand_now()
 
     async def build_assimilators(self):
@@ -235,7 +235,7 @@ class BotTest(sc2.BotAI):
 
 
     async def build_workers(self):
-        if len(self.units(NEXUS)) * 16 > len(self.units(PROBE)):
+        if len(self.units(NEXUS)) * 16 > len(self.units(PROBE)) - 1:
             for nexus in self.units(NEXUS).ready.noqueue:
                 if self.can_afford(PROBE):
                     await self.do(nexus.train(PROBE))
@@ -259,4 +259,4 @@ class BotTest(sc2.BotAI):
         self.max_stargetes = count
 
     def attack_choice(self):
-        return self.choices[self.current_choice].__name__
+        return str(self.current_choice)
