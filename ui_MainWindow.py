@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Fri Mar  1 13:23:51 2019
+# Created: Fri Mar  8 15:21:41 2019
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -70,7 +70,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "MainWindow", None, -1))
         self.pictureLabel.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
         self.maxNexusesLabel.setText(QtWidgets.QApplication.translate("MainWindow", "Max Nexuses", None, -1))
-        self.label.setText(QtWidgets.QApplication.translate("MainWindow", "Action", None, -1))
+        self.label.setText(QtWidgets.QApplication.translate("MainWindow", "Target", None, -1))
         self.action_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))
         self.label_3.setText(QtWidgets.QApplication.translate("MainWindow", "Game time", None, -1))
         self.game_time_label.setText(QtWidgets.QApplication.translate("MainWindow", "TextLabel", None, -1))

@@ -7,6 +7,14 @@ import numpy as np
 import cv2
 import time
 import math
+from enum import IntEnum
+
+
+class Target(IntEnum):
+    NOTHING = 0
+    UNIT_CLOSEST_NEXUS = 1
+    ENEMY_STRUCTURES = 2
+    ENEMY_START = 3
 
 
 class BotTest(sc2.BotAI):
@@ -21,12 +29,12 @@ class BotTest(sc2.BotAI):
         self.max_stargetes = 6
         self.game_time = 0
         self.unit_types = list()
-        self.choices = {0: self.do_nothing,
-                        1: self.unit_closest_nexus,
-                        2: self.enemy_structures,
-                        3: self.enemy_start
+        self.choices = {Target.NOTHING: self.target_nothing,
+                        Target.UNIT_CLOSEST_NEXUS: self.target_unit_closest_nexus,
+                        Target.ENEMY_STRUCTURES: self.target_enemy_structures,
+                        Target.ENEMY_START: self.target_enemy_start
                         }
-        self.current_choice = 0
+        self.current_choice = Target.NOTHING
 
     def on_end(self, game_result):
         print('--- on_end called ---')
@@ -42,9 +50,9 @@ class BotTest(sc2.BotAI):
         await self.build_workers()
         await self.build_pylons()
         await self.build_assimilators()
-        await self.expand()
         await self.offensive_force_buildings()
         await self.build_offensive_force()
+        await self.expand()
         await self.attack_something()
         await self.intel()
 
@@ -133,13 +141,13 @@ class BotTest(sc2.BotAI):
         if len(self.units(VOIDRAY).idle) > 0 and len(self.units(CARRIER).idle) > 0:
 
             if self.game_time > self.do_something_after:
-                self.current_choice = random.randrange(0, len(self.choices))
-                print(self.current_choice)
+                self.current_choice = random.choice(list(Target))
+                print(f'----current choice: {self.current_choice}')
                 target = self.choices[self.current_choice]()
                 await self.do_attack(target)
 
             y = np.zeros(len(self.choices))
-            y[self.current_choice] = 1
+            y[int(self.current_choice)] = 1
             self.train_data.append([y, self.flipped])
 
     async def do_attack(self, target):
@@ -149,29 +157,29 @@ class BotTest(sc2.BotAI):
             for vr in self.units(VOIDRAY):
                 await self.do(vr.attack(target))
 
-    def do_nothing(self):
+    def target_nothing(self):
         wait = random.randrange(7, 100)/100
         self.do_something_after = self.game_time + wait
         return None
 
-    def unit_closest_nexus(self):
+    def target_unit_closest_nexus(self):
         if len(self.known_enemy_units) > 0 and self.units(NEXUS).exists:
             target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
             return target
 
-    def enemy_structures(self):
+    def target_enemy_structures(self):
         if len(self.known_enemy_structures) > 0:
             if len(self.known_enemy_structures) > 0:
                 target = random.choice(self.known_enemy_structures)
         return target
 
-    def enemy_start(self):
+    def target_enemy_start(self):
         target = self.enemy_start_locations[0]
         return target
 
     async def on_unit_destroyed(self, unit_tag):
-        target = self.unit_closest_nexus()
-        self.current_choice = 1
+        self.current_choice = Target.UNIT_CLOSEST_NEXUS
+        target = self.choices[self.current_choice]()
         await self.do_attack(target)
 
     async def build_offensive_force(self):
